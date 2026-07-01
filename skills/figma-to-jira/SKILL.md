@@ -39,10 +39,15 @@ working project):
   "defaultIssueType": "Story",
   "labels": ["figma"],
   "figmaToken": "figd_...",
+  "confirmBeforeCreate": true,
   "autoReplyOnCreate": true,
   "autoReplyMessage": "Thanks! We've created a task for this — we'll get back to you soon once it's prioritized."
 }
 ```
+
+`confirmBeforeCreate` controls whether the plugin shows a preview and waits for
+approval before creating the issue (`true`), or creates it immediately after
+generating it and then reports what it made (`false`).
 
 `autoReplyOnCreate` controls whether, after creating an issue, the plugin posts a
 short confirmation reply on the source Figma comment. The reply is
@@ -70,16 +75,20 @@ the user to run `/ftj:setup` first.
 5. Ask the user for their Figma personal access token. Point them at Figma →
    Settings → Security → Personal access tokens. Scopes: File content read-only,
    Comments read-only (plus Comments: write if they enable auto-reply next).
-6. Ask (with `AskUserQuestion`) whether to **auto-post a generic confirmation
-   reply** on the Figma comment after a task is created. Explain it posts under
-   their own token (in their name), so they own it, and that it requires the
-   token's Comments: write scope. Set `autoReplyOnCreate` accordingly and default
+6. Ask (with `AskUserQuestion`) whether to **confirm before creating**: show a
+   preview and wait for approval (`confirmBeforeCreate: true`), or create the
+   issue immediately after generating it (`confirmBeforeCreate: false`).
+7. Ask (with `AskUserQuestion`) whether to **auto-post a confirmation reply** on
+   the Figma comment after a task is created. Explain it posts under their own
+   token (in their name), so they own it, and that it requires the token's
+   Comments: write scope. Set `autoReplyOnCreate` accordingly and default
    `autoReplyMessage` to "Thanks! We've created a task for this — we'll get back
    to you soon once it's prioritized." (offer to customise).
-7. Write `./.figma-to-jira/config.json` (cloudId, projectKey, projectName,
-   defaultIssueType, `labels: ["figma"]`, figmaToken, autoReplyOnCreate,
-   autoReplyMessage) and write `./.figma-to-jira/.gitignore` with a single line `*`.
-8. Confirm: "Setup done — tasks will go to <projectName> (<projectKey>)."
+8. Write `./.figma-to-jira/config.json` (cloudId, projectKey, projectName,
+   defaultIssueType, `labels: ["figma"]`, figmaToken, confirmBeforeCreate,
+   autoReplyOnCreate, autoReplyMessage) and write `./.figma-to-jira/.gitignore`
+   with a single line `*`.
+9. Confirm: "Setup done — tasks will go to <projectName> (<projectKey>)."
 
 ## Create flow (`/ftj:add <args>`)
 
@@ -121,9 +130,11 @@ the user to run `/ftj:setup` first.
      added to the task's labels. If no epic, or no label reaches the threshold,
      inherit nothing.
 5. **Write the task** following the principles below.
-6. **Preview** the task (title, description, acceptance criteria, epic, issue
-   type, and the final labels) and ask for approval before creating.
-7. On approval, create the issue via the Atlassian create-issue tool (project =
+6. **Confirmation (per `confirmBeforeCreate`):** if `true` (default), show a
+   preview (title, description, acceptance criteria, epic, issue type, final
+   labels) and wait for approval before creating. If `false`, skip approval and
+   proceed straight to creation, then report what was created.
+7. Create the issue via the Atlassian create-issue tool (project =
    projectKey, issuetype = defaultIssueType, labels = config `labels` **plus the
    dominant epic label(s) from step 4**, deduped, and the chosen epic as `parent`
    — the `parent` field links a Story to an Epic in both company- and

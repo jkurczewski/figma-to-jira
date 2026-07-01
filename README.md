@@ -52,7 +52,7 @@ Run once per project:
 /ftj:setup
 ```
 
-`/ftj:setup` asks which Jira project to target, for your Figma token, and whether to auto-post a confirmation reply on the Figma comment after each task is created — then writes them to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
+`/ftj:setup` asks which Jira project to target, for your Figma token, whether to confirm before creating each task, and whether to auto-post a confirmation reply on the Figma comment after each task is created — then writes them to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
 
 The config is **per project**: run setup once in each project/repo you file tasks from. Each project can target a different Jira project, so a mobile repo and a web repo can point at different Jira boards.
 
@@ -107,6 +107,7 @@ You always see a preview and approve before anything is created in Jira.
   "defaultIssueType": "Story",
   "labels": ["figma"],
   "figmaToken": "figd_...",
+  "confirmBeforeCreate": true,
   "autoReplyOnCreate": true,
   "autoReplyMessage": "Thanks! We've created a task for this — we'll get back to you soon once it's prioritized."
 }
@@ -120,6 +121,7 @@ You always see a preview and approve before anything is created in Jira.
 | `defaultIssueType` | Issue type for new tasks. Defaults to `Story`. |
 | `labels` | Base labels applied to every created issue. The dominant label of the chosen epic is added automatically on top of these. |
 | `figmaToken` | Your Figma personal access token (secret). |
+| `confirmBeforeCreate` | If `true`, show a preview and wait for approval before creating the issue. If `false`, create it immediately after generating. |
 | `autoReplyOnCreate` | If `true`, post a generic confirmation reply on the Figma comment after creating a task. Posted under your token (in your name); requires Comments: write scope. |
 | `autoReplyMessage` | The base reply text. The created issue key is appended in parentheses, e.g. `(SHELL-518)` (key only, not a full link). |
 
