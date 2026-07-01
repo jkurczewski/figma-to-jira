@@ -24,7 +24,7 @@ flowchart TD
     H --> I
     I --> J[Approve → create Jira issue → return link]
     J --> K{autoReplyOnCreate?}
-    K -- yes --> L[Post generic confirmation reply on the Figma comment]
+    K -- yes --> L[Post confirmation reply on the Figma comment with the Jira code]
     K -- no --> M[Done]
 ```
 
@@ -121,7 +121,7 @@ You always see a preview and approve before anything is created in Jira.
 | `labels` | Base labels applied to every created issue. The dominant label of the chosen epic is added automatically on top of these. |
 | `figmaToken` | Your Figma personal access token (secret). |
 | `autoReplyOnCreate` | If `true`, post a generic confirmation reply on the Figma comment after creating a task. Posted under your token (in your name); requires Comments: write scope. |
-| `autoReplyMessage` | The generic reply text. Never includes the issue key or a Jira link. |
+| `autoReplyMessage` | The base reply text. The created issue key is appended in parentheses, e.g. `(SHELL-518)` (key only, not a full link). |
 
 > **Security:** `figmaToken` is a secret. The folder is gitignored on setup so it never lands in version control. If you rotate your Figma token, re-run `/ftj:setup`.
 

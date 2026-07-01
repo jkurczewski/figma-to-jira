@@ -45,10 +45,12 @@ working project):
 ```
 
 `autoReplyOnCreate` controls whether, after creating an issue, the plugin posts a
-short **generic** confirmation reply on the source Figma comment. The reply must
-stay generic — never include the issue key or a Jira link. It is posted under the
-user's own Figma token (i.e. in their name), so the person adding the task owns
-it. `autoReplyMessage` is the text to post (a sensible default is shown).
+short confirmation reply on the source Figma comment. The reply is
+`autoReplyMessage` with the created issue key appended in parentheses, e.g.
+"Thanks! …once it's prioritized. (SHELL-518)" — the key only, not a full Jira
+URL. It is posted under the user's own Figma token (i.e. in their name), so the
+person adding the task owns it. `autoReplyMessage` is the base text (a sensible
+default is shown).
 
 `figmaToken` is a secret. Setup writes `./.figma-to-jira/.gitignore` containing
 `*` so the whole folder (token included) is never committed. Never print the
@@ -127,13 +129,14 @@ the user to run `/ftj:setup` first.
    — the `parent` field links a Story to an Epic in both company- and
    team-managed projects). Return the created issue's URL.
 8. **Auto-reply (if `autoReplyOnCreate` is true and a source comment id is
-   known):** post `autoReplyMessage` as a reply to that comment via the Figma
-   REST API — `POST https://api.figma.com/v1/files/<fileKey>/comments` with body
-   `{"message": "<autoReplyMessage>", "comment_id": "<commentId>"}` and header
-   `X-Figma-Token: <figmaToken>` (run via Bash `curl`; never echo the token).
-   Keep it **generic** — never include the issue key or a Jira link. On `403`
-   (token lacks Comments: write), tell the user the task was created but the reply
-   needs a token with write scope; do not fail the task.
+   known):** post the reply to that comment via the Figma REST API —
+   `POST https://api.figma.com/v1/files/<fileKey>/comments` with body
+   `{"message": "<autoReplyMessage> (<ISSUE-KEY>)", "comment_id": "<commentId>"}`
+   and header `X-Figma-Token: <figmaToken>` (run via Bash `curl`; never echo the
+   token). Append the created issue key in parentheses (key only, not a full
+   URL), e.g. `... prioritized. (SHELL-518)`. On `403` (token lacks Comments:
+   write), tell the user the task was created but the reply needs a token with
+   write scope; do not fail the task.
 
 ## Task-writing principles
 
