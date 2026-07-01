@@ -20,3 +20,6 @@ Then write a concise, outcome-focused task (title, compact description as a user
 story, 2–4 acceptance criteria, Figma link as source), show a preview for my
 approval, and create the issue on approval — exactly per the figma-to-jira skill.
 If `./.figma-to-jira/config.json` is missing, tell me to run /ftj:setup first.
+
+Keep replies terse (caveman-brief): a short status, the preview, the result link
+— no narration of steps or tools. Follow the efficiency rules in the skill.

@@ -26,6 +26,21 @@ the `/ftj:setup` and `/ftj:add` commands.
   if the user enables auto-reply (see below). It is captured during setup and
   stored locally (never committed — see Configuration).
 
+## Efficiency (keep token use minimal)
+
+- **Be terse — caveman-brief.** Speak to the user in as few words as possible:
+  a one-line status, the preview, the result link. No preamble, no recaps, no
+  narrating steps or tools. Prefer showing over explaining.
+- **Never pull large payloads into context** (Jira and Figma responses are huge):
+  - Figma comments: `curl -s` the response to a file, then extract only the
+    target with `jq` (by comment id, else `client_meta.node_id`). Never print or
+    read the whole dump.
+  - Jira JQL: request minimal `fields` (e.g. `["summary"]` or `["labels"]`),
+    small `maxResults`, `responseContentFormat: "markdown"`. If the result is
+    still large it is saved to a file — read only what you need with `jq`.
+  - `getVisibleJiraProjects`: pass `expandIssueTypes: false`.
+- Reuse fetched data within a run; don't re-fetch. Never echo the Figma token.
+
 ## Configuration
 
 Per-project config at `./.figma-to-jira/config.json` (relative to the current
@@ -68,8 +83,8 @@ the user to run `/ftj:setup` first.
    ToolSearch). If not, give connection instructions and stop.
 2. Fetch the accessible Atlassian site(s) to get `cloudId`. If more than one,
    ask which site.
-3. Fetch visible Jira projects for that site. Present them with
-   `AskUserQuestion` and let the user pick the target project.
+3. Fetch visible Jira projects for that site (`expandIssueTypes: false` to keep
+   the payload small). Present them with `AskUserQuestion` and let the user pick.
 4. Fetch the project's available issue types. Set `defaultIssueType` to `Story`
    if present, otherwise `Task`.
 5. Ask the user for their Figma personal access token. Point them at Figma →
@@ -106,29 +121,29 @@ the user to run `/ftj:setup` first.
      fetched comment.
 3. **Read the comment from Figma** (this is the default — do not ask the user to
    paste it):
-   - Call the Figma REST API:
+   - `curl -s` the Figma REST API to a file (do not read the full dump):
      `GET https://api.figma.com/v1/files/<fileKey>/comments` with header
-     `X-Figma-Token: <figmaToken>` (run via a Bash `curl`; never echo the token).
-   - Find the comment whose `id` equals the fragment id; else the one whose
-     `client_meta.node_id` matches the `node-id`. Use its `message` (and author)
-     as the source content.
+     `X-Figma-Token: <figmaToken>` (never echo the token).
+   - Extract only the target with `jq`: the comment whose `id` equals the
+     fragment id; else the one whose `client_meta.node_id` matches the `node-id`.
+     Use its `message` (and author) as the source content.
    - **On `403`/token expired:** tell the user their Figma token expired and to
      re-run `/ftj:setup` with a fresh token; stop.
    - **If the comment cannot be found / no link:** fall back — ask the user for a
      screenshot, the text, or a corrected link; do not invent content.
-4. **Epic selection** (when needed):
-   - Query epics via JQL:
+4. **Epic selection** (when needed) — use minimal `fields`, small `maxResults`,
+   markdown format; if a result is large, `jq` the saved file, don't read it all:
+   - Query epics via JQL (fields `["summary"]`):
      `project = <projectKey> AND issuetype = Epic [AND summary ~ "<name>*"] ORDER BY updated DESC`.
      (`issuetype = Epic` works even on localized Jira instances.)
    - For a name lookup, confirm the best match. With no epic given, propose the
      1–2 best matches with `AskUserQuestion` plus a "No epic" option.
-   - **Inherit the epic's label(s):** once an epic key is known, fetch its child
-     issues via JQL `parent = <EPIC-KEY>` (field `labels`, up to ~50) and tally
-     label frequency. Teams sort by label, so a task should carry the same label
-     as its epic siblings — take the label(s) present on **at least half** of the
-     children (the dominant epic label, e.g. `DACH` for the DACH epic). These are
-     added to the task's labels. If no epic, or no label reaches the threshold,
-     inherit nothing.
+   - **Inherit the epic's label(s):** once an epic key is known, query its child
+     issues via JQL `parent = <EPIC-KEY>` with fields `["labels"]` (up to ~50),
+     then tally label frequency with `jq` on the saved file. Teams sort by label,
+     so take the label(s) present on **at least half** of the children (the
+     dominant epic label, e.g. `DACH`). Add them to the task's labels. If no epic,
+     or no label reaches the threshold, inherit nothing.
 5. **Write the task** following the principles below.
 6. **Confirmation (per `confirmBeforeCreate`):** if `true` (default), show a
    preview (title, description, acceptance criteria, epic, issue type, final
