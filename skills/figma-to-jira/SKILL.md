@@ -111,13 +111,21 @@ the user to run `/ftj:setup` first.
      (`issuetype = Epic` works even on localized Jira instances.)
    - For a name lookup, confirm the best match. With no epic given, propose the
      1–2 best matches with `AskUserQuestion` plus a "No epic" option.
+   - **Inherit the epic's label(s):** once an epic key is known, fetch its child
+     issues via JQL `parent = <EPIC-KEY>` (field `labels`, up to ~50) and tally
+     label frequency. Teams sort by label, so a task should carry the same label
+     as its epic siblings — take the label(s) present on **at least half** of the
+     children (the dominant epic label, e.g. `DACH` for the DACH epic). These are
+     added to the task's labels. If no epic, or no label reaches the threshold,
+     inherit nothing.
 5. **Write the task** following the principles below.
 6. **Preview** the task (title, description, acceptance criteria, epic, issue
-   type) and ask for approval before creating.
+   type, and the final labels) and ask for approval before creating.
 7. On approval, create the issue via the Atlassian create-issue tool (project =
-   projectKey, issuetype = defaultIssueType, labels from config, and the chosen
-   epic as `parent` — the `parent` field links a Story to an Epic in both
-   company- and team-managed projects). Return the created issue's URL.
+   projectKey, issuetype = defaultIssueType, labels = config `labels` **plus the
+   dominant epic label(s) from step 4**, deduped, and the chosen epic as `parent`
+   — the `parent` field links a Story to an Epic in both company- and
+   team-managed projects). Return the created issue's URL.
 8. **Auto-reply (if `autoReplyOnCreate` is true and a source comment id is
    known):** post `autoReplyMessage` as a reply to that comment via the Figma
    REST API — `POST https://api.figma.com/v1/files/<fileKey>/comments` with body

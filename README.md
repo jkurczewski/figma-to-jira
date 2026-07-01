@@ -91,6 +91,7 @@ Each task is a concise, outcome-focused **user story**:
 - **Acceptance criteria** — 2–4 checkable items.
 - **Source** — the Figma link, so the design context is one click away.
 - **Issue type** — `Story` by default.
+- **Labels** — your base labels (e.g. `figma`) plus the dominant label of the chosen epic, so the task sorts alongside its epic siblings (e.g. `DACH` for the DACH epic).
 
 You always see a preview and approve before anything is created in Jira.
 
@@ -117,7 +118,7 @@ You always see a preview and approve before anything is created in Jira.
 | `projectKey` | Jira project key new issues are created in. |
 | `projectName` | Human-readable project name (for previews). |
 | `defaultIssueType` | Issue type for new tasks. Defaults to `Story`. |
-| `labels` | Labels applied to every created issue. |
+| `labels` | Base labels applied to every created issue. The dominant label of the chosen epic is added automatically on top of these. |
 | `figmaToken` | Your Figma personal access token (secret). |
 | `autoReplyOnCreate` | If `true`, post a generic confirmation reply on the Figma comment after creating a task. Posted under your token (in your name); requires Comments: write scope. |
 | `autoReplyMessage` | The generic reply text. Never includes the issue key or a Jira link. |
