@@ -23,13 +23,16 @@ flowchart TD
     G --> I[Write concise task + preview]
     H --> I
     I --> J[Approve → create Jira issue → return link]
+    J --> K{autoReplyOnCreate?}
+    K -- yes --> L[Post generic confirmation reply on the Figma comment]
+    K -- no --> M[Done]
 ```
 
 ## Requirements
 
 - **Claude Code**.
 - The **Atlassian connector** connected in Claude (Settings → Connectors → Atlassian). This provides per-user OAuth access to your Jira — the plugin ships no secrets.
-- A **Figma personal access token** (scopes: File content read-only, Comments read-only), created at Figma → Settings → Security → Personal access tokens. Each user supplies their own.
+- A **Figma personal access token** (scopes: File content read-only, Comments read-only — add **Comments: write** if you enable auto-reply), created at Figma → Settings → Security → Personal access tokens. Each user supplies their own.
 - A **Jira project** you can create issues in.
 
 ## Install
@@ -49,7 +52,7 @@ Run once per project:
 /ftj:setup
 ```
 
-`/ftj:setup` asks which Jira project to target and for your Figma token, then writes both to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
+`/ftj:setup` asks which Jira project to target, for your Figma token, and whether to auto-post a confirmation reply on the Figma comment after each task is created — then writes them to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
 
 The config is **per project**: run setup once in each project/repo you file tasks from. Each project can target a different Jira project, so a mobile repo and a web repo can point at different Jira boards.
 
@@ -102,7 +105,9 @@ You always see a preview and approve before anything is created in Jira.
   "projectName": "Mobile App",
   "defaultIssueType": "Story",
   "labels": ["figma"],
-  "figmaToken": "figd_..."
+  "figmaToken": "figd_...",
+  "autoReplyOnCreate": true,
+  "autoReplyMessage": "Thanks! We've created a task for this — we'll get back to you soon once it's prioritized."
 }
 ```
 
@@ -114,6 +119,8 @@ You always see a preview and approve before anything is created in Jira.
 | `defaultIssueType` | Issue type for new tasks. Defaults to `Story`. |
 | `labels` | Labels applied to every created issue. |
 | `figmaToken` | Your Figma personal access token (secret). |
+| `autoReplyOnCreate` | If `true`, post a generic confirmation reply on the Figma comment after creating a task. Posted under your token (in your name); requires Comments: write scope. |
+| `autoReplyMessage` | The generic reply text. Never includes the issue key or a Jira link. |
 
 > **Security:** `figmaToken` is a secret. The folder is gitignored on setup so it never lands in version control. If you rotate your Figma token, re-run `/ftj:setup`.
 

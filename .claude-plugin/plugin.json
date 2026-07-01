@@ -1,6 +1,6 @@
 {
   "name": "ftj",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Reads a Figma comment from its link and turns it into a concise Jira task via the Atlassian connector.",
   "author": { "name": "Jakub Kurczewski" },
   "keywords": ["figma", "jira", "atlassian", "tasks"],

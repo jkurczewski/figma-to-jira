@@ -22,8 +22,9 @@ the `/ftj:setup` and `/ftj:add` commands.
   getJiraProjectIssueTypesMetadata, searchJiraIssuesUsingJql, createJiraIssue,
   getJiraIssue.
 - A **Figma personal access token** (per user) is required to read comments.
-  Scopes: File content read-only + Comments read-only. It is captured during
-  setup and stored locally (never committed — see Configuration).
+  Scopes: File content read-only + Comments read-only — add **Comments: write**
+  if the user enables auto-reply (see below). It is captured during setup and
+  stored locally (never committed — see Configuration).
 
 ## Configuration
 
@@ -37,9 +38,17 @@ working project):
   "projectName": "Mobile App",
   "defaultIssueType": "Story",
   "labels": ["figma"],
-  "figmaToken": "figd_..."
+  "figmaToken": "figd_...",
+  "autoReplyOnCreate": true,
+  "autoReplyMessage": "Thanks! We've created a task for this — we'll get back to you soon once it's prioritized."
 }
 ```
+
+`autoReplyOnCreate` controls whether, after creating an issue, the plugin posts a
+short **generic** confirmation reply on the source Figma comment. The reply must
+stay generic — never include the issue key or a Jira link. It is posted under the
+user's own Figma token (i.e. in their name), so the person adding the task owns
+it. `autoReplyMessage` is the text to post (a sensible default is shown).
 
 `figmaToken` is a secret. Setup writes `./.figma-to-jira/.gitignore` containing
 `*` so the whole folder (token included) is never committed. Never print the
@@ -56,13 +65,19 @@ the user to run `/ftj:setup` first.
    `AskUserQuestion` and let the user pick the target project.
 4. Fetch the project's available issue types. Set `defaultIssueType` to `Story`
    if present, otherwise `Task`.
-5. Ask the user for their Figma personal access token (scopes: File content
-   read-only, Comments read-only). Point them at Figma → Settings → Security →
-   Personal access tokens.
-6. Write `./.figma-to-jira/config.json` (cloudId, projectKey, projectName,
-   defaultIssueType, `labels: ["figma"]`, figmaToken) and write
-   `./.figma-to-jira/.gitignore` with a single line `*`.
-7. Confirm: "Setup done — tasks will go to <projectName> (<projectKey>)."
+5. Ask the user for their Figma personal access token. Point them at Figma →
+   Settings → Security → Personal access tokens. Scopes: File content read-only,
+   Comments read-only (plus Comments: write if they enable auto-reply next).
+6. Ask (with `AskUserQuestion`) whether to **auto-post a generic confirmation
+   reply** on the Figma comment after a task is created. Explain it posts under
+   their own token (in their name), so they own it, and that it requires the
+   token's Comments: write scope. Set `autoReplyOnCreate` accordingly and default
+   `autoReplyMessage` to "Thanks! We've created a task for this — we'll get back
+   to you soon once it's prioritized." (offer to customise).
+7. Write `./.figma-to-jira/config.json` (cloudId, projectKey, projectName,
+   defaultIssueType, `labels: ["figma"]`, figmaToken, autoReplyOnCreate,
+   autoReplyMessage) and write `./.figma-to-jira/.gitignore` with a single line `*`.
+8. Confirm: "Setup done — tasks will go to <projectName> (<projectKey>)."
 
 ## Create flow (`/ftj:add <args>`)
 
@@ -103,6 +118,14 @@ the user to run `/ftj:setup` first.
    projectKey, issuetype = defaultIssueType, labels from config, and the chosen
    epic as `parent` — the `parent` field links a Story to an Epic in both
    company- and team-managed projects). Return the created issue's URL.
+8. **Auto-reply (if `autoReplyOnCreate` is true and a source comment id is
+   known):** post `autoReplyMessage` as a reply to that comment via the Figma
+   REST API — `POST https://api.figma.com/v1/files/<fileKey>/comments` with body
+   `{"message": "<autoReplyMessage>", "comment_id": "<commentId>"}` and header
+   `X-Figma-Token: <figmaToken>` (run via Bash `curl`; never echo the token).
+   Keep it **generic** — never include the issue key or a Jira link. On `403`
+   (token lacks Comments: write), tell the user the task was created but the reply
+   needs a token with write scope; do not fail the task.
 
 ## Task-writing principles
 
