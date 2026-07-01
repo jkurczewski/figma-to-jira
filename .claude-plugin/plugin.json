@@ -1,0 +1,9 @@
+{
+  "name": "figma-to-jira",
+  "version": "0.1.0",
+  "description": "Turns a pasted Figma comment into a concise Jira task via the Atlassian connector.",
+  "author": { "name": "Jakub Kurczewski" },
+  "keywords": ["figma", "jira", "atlassian", "tasks"],
+  "skills": "./skills/",
+  "commands": "./commands/"
+}
