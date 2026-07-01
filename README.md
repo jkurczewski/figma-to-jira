@@ -12,8 +12,8 @@ Design feedback lives in Figma comments. Turning that feedback into good Jira ta
 
 ```mermaid
 flowchart TD
-    A[/figma-to-jira:add Figma comment link + optional EPIC-KEY/] --> B{config.json exists?}
-    B -- no --> S[/figma-to-jira:setup: pick Jira project + store Figma token/]
+    A[/ftj:add Figma comment link + optional EPIC-KEY/] --> B{config.json exists?}
+    B -- no --> S[/ftj:setup: pick Jira project + store Figma token/]
     B -- yes --> C[Read the comment from Figma via your token]
     C --> D{Comment readable?}
     D -- no --> E[Ask for screenshot / text / corrected link]
@@ -36,7 +36,7 @@ flowchart TD
 
 ```bash
 /plugin marketplace add <org>/figma-to-jira
-/plugin install figma-to-jira@figma-to-jira
+/plugin install ftj@figma-to-jira
 ```
 
 > Replace `<org>` with the GitHub `owner/repo` for this repository once it is published.
@@ -46,17 +46,17 @@ flowchart TD
 Run once per project:
 
 ```
-/figma-to-jira:setup
+/ftj:setup
 ```
 
-`/figma-to-jira:setup` asks which Jira project to target and for your Figma token, then writes both to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
+`/ftj:setup` asks which Jira project to target and for your Figma token, then writes both to `./.figma-to-jira/config.json` in the current repo. It also writes `./.figma-to-jira/.gitignore` (`*`) so the folder — including your token — is never committed.
 
 The config is **per project**: run setup once in each project/repo you file tasks from. Each project can target a different Jira project, so a mobile repo and a web repo can point at different Jira boards.
 
 ## Usage
 
 ```
-/figma-to-jira:add <figma-comment-link> [EPIC-KEY or epic name]
+/ftj:add <figma-comment-link> [EPIC-KEY or epic name]
 ```
 
 The plugin reads the referenced comment from Figma using your token — you don't paste it.
@@ -64,7 +64,7 @@ The plugin reads the referenced comment from Figma using your token — you don'
 **Recommend an epic (nothing given):**
 
 ```
-/figma-to-jira:add https://figma.com/design/KEY?node-id=123-456#7890
+/ftj:add https://figma.com/design/KEY?node-id=123-456#7890
 ```
 
 The plugin reads the comment, drafts the task, and recommends a fitting epic.
@@ -72,7 +72,7 @@ The plugin reads the comment, drafts the task, and recommends a fitting epic.
 **Attach to a specific epic:**
 
 ```
-/figma-to-jira:add https://figma.com/design/KEY?node-id=123-456#7890 TRACKER-142
+/ftj:add https://figma.com/design/KEY?node-id=123-456#7890 TRACKER-142
 ```
 
 An epic key (matching `[A-Z][A-Z0-9]+-\d+`) attaches directly. You can also pass an epic **name** (e.g. `DACH`) and the plugin looks it up.
@@ -93,7 +93,7 @@ You always see a preview and approve before anything is created in Jira.
 
 ## Configuration reference
 
-`/figma-to-jira:setup` writes `./.figma-to-jira/config.json` in the current project:
+`/ftj:setup` writes `./.figma-to-jira/config.json` in the current project:
 
 ```json
 {
@@ -115,14 +115,14 @@ You always see a preview and approve before anything is created in Jira.
 | `labels` | Labels applied to every created issue. |
 | `figmaToken` | Your Figma personal access token (secret). |
 
-> **Security:** `figmaToken` is a secret. The folder is gitignored on setup so it never lands in version control. If you rotate your Figma token, re-run `/figma-to-jira:setup`.
+> **Security:** `figmaToken` is a secret. The folder is gitignored on setup so it never lands in version control. If you rotate your Figma token, re-run `/ftj:setup`.
 
 ## Troubleshooting
 
 - **Atlassian tools not found** — connect the Atlassian connector in Claude (Settings → Connectors → Atlassian).
-- **Config missing** — run `/figma-to-jira:setup` in the current project.
-- **Figma token expired / 403** — re-run `/figma-to-jira:setup` with a fresh token.
-- **Wrong project** — re-run `/figma-to-jira:setup` to point at a different Jira project.
+- **Config missing** — run `/ftj:setup` in the current project.
+- **Figma token expired / 403** — re-run `/ftj:setup` with a fresh token.
+- **Wrong project** — re-run `/ftj:setup` to point at a different Jira project.
 - **Comment can't be read** — the plugin will ask for a screenshot, text, or a corrected link.
 
 ## Publishing to the Future Mind marketplace

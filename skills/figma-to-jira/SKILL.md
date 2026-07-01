@@ -1,12 +1,12 @@
 ---
 name: figma-to-jira
-description: Use when creating a Jira task from a Figma comment. Reads the comment automatically from a Figma link (or accepts pasted text/screenshot) and creates a concise, outcome-focused Jira issue in a preconfigured project, recommending or attaching an epic. Triggered by the /figma-to-jira:add and /figma-to-jira:setup commands.
+description: Use when creating a Jira task from a Figma comment. Reads the comment automatically from a Figma link (or accepts pasted text/screenshot) and creates a concise, outcome-focused Jira issue in a preconfigured project, recommending or attaching an epic. Triggered by the /ftj:add and /ftj:setup commands.
 ---
 
 # Figma → Jira
 
 Turn a Figma comment into a concise, outcome-focused Jira task. This skill backs
-the `/figma-to-jira:setup` and `/figma-to-jira:add` commands.
+the `/ftj:setup` and `/ftj:add` commands.
 
 ## Prerequisites
 
@@ -43,10 +43,10 @@ working project):
 
 `figmaToken` is a secret. Setup writes `./.figma-to-jira/.gitignore` containing
 `*` so the whole folder (token included) is never committed. Never print the
-token in output. If this file is missing when running `/figma-to-jira:add`, tell
-the user to run `/figma-to-jira:setup` first.
+token in output. If this file is missing when running `/ftj:add`, tell
+the user to run `/ftj:setup` first.
 
-## Setup flow (`/figma-to-jira:setup`)
+## Setup flow (`/ftj:setup`)
 
 1. Confirm the Atlassian connector is available (discover a Jira tool via
    ToolSearch). If not, give connection instructions and stop.
@@ -64,10 +64,10 @@ the user to run `/figma-to-jira:setup` first.
    `./.figma-to-jira/.gitignore` with a single line `*`.
 7. Confirm: "Setup done — tasks will go to <projectName> (<projectKey>)."
 
-## Create flow (`/figma-to-jira:add <args>`)
+## Create flow (`/ftj:add <args>`)
 
 1. Load `./.figma-to-jira/config.json`. If missing, or `figmaToken` is absent →
-   direct to `/figma-to-jira:setup`.
+   direct to `/ftj:setup`.
 2. **Parse the arguments** (free-form text after the command):
    - **Figma link:** find a `figma.com` URL. REQUIRED. Extract the file key
      (`/design/<fileKey>` or `/file/<fileKey>`), the `node-id`, and the comment
@@ -87,7 +87,7 @@ the user to run `/figma-to-jira:setup` first.
      `client_meta.node_id` matches the `node-id`. Use its `message` (and author)
      as the source content.
    - **On `403`/token expired:** tell the user their Figma token expired and to
-     re-run `/figma-to-jira:setup` with a fresh token; stop.
+     re-run `/ftj:setup` with a fresh token; stop.
    - **If the comment cannot be found / no link:** fall back — ask the user for a
      screenshot, the text, or a corrected link; do not invent content.
 4. **Epic selection** (when needed):
@@ -119,7 +119,7 @@ the user to run `/figma-to-jira:setup` first.
 
 ## Example
 
-Input: `/figma-to-jira:add https://figma.com/design/KEY?node-id=16628-53616#1764710155 TRACKER-142`
+Input: `/ftj:add https://figma.com/design/KEY?node-id=16628-53616#1764710155 TRACKER-142`
 
 The plugin reads comment `1764710155` from the Figma file, drafts a `Story` in
 the configured project linked to epic `TRACKER-142`, with a compact outcome-focused
