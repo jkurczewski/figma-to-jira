@@ -1,14 +1,14 @@
 {
   "name": "figma-to-jira",
   "owner": { "name": "Jakub Kurczewski" },
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Figma → Jira task creation plugin.",
   "plugins": [
     {
       "name": "figma-to-jira",
       "source": ".",
-      "description": "Turns a pasted Figma comment into a concise Jira task via the Atlassian connector.",
-      "version": "0.1.0",
+      "description": "Reads a Figma comment from its link and turns it into a concise Jira task via the Atlassian connector.",
+      "version": "0.2.0",
       "author": { "name": "Jakub Kurczewski" }
     }
   ]
